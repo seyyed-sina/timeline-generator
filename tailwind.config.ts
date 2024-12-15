@@ -9,8 +9,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        primary: "rgb(50, 50, 50)",
+        "primary-hover": "rgb(30, 30, 30)",
+        secondary: "rgb(200, 200, 200)",
+        "secondary-hover": "rgb(230, 230, 230)",
+        disabled: "rgb(215, 215, 215)",
+        dark: "rgb(10, 10, 10)",
+        middle: "rgb(125, 125, 125)",
+        light: "rgb(240, 240, 240)",
       },
     },
   },

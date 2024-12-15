@@ -1,3 +1,4 @@
+import { clx } from "@/utils";
 import React from "react";
 
 interface StageProgressProps {
@@ -15,15 +16,16 @@ export function StageProgress({ startDate, endDate }: StageProgressProps) {
   const isCompleted = now > endDate;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+    <div className="absolute bottom-0 inset-x-0 h-1 bg-gray-200">
       <div
-        className={`h-full transition-all duration-300 ${
+        className={clx(
+          "h-full transition-all duration-300",
           isCompleted
             ? "bg-green-500"
             : isActive
             ? "bg-blue-500"
             : "bg-gray-300"
-        }`}
+        )}
         style={{ width: `${progress}%` }}
       />
     </div>

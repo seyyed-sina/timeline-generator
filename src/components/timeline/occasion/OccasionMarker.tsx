@@ -1,4 +1,6 @@
+import React from "react";
 import { Circle, Milestone, Flag } from "lucide-react";
+import { DATE_TYPES } from "../../../types/timeline";
 
 interface OccasionMarkerProps {
   type: "status" | "milestone" | "stage";

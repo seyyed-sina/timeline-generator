@@ -1,14 +1,19 @@
-import { GapLayoutType, Occasion, Stage } from "@/types/timeline";
-import { memo, useMemo, useState } from "react";
-// import { TimelineStage } from "./TimelineStage";
-import { TimelineOccasion } from "./TimelineOccasion";
+import {
+  GapLayoutType,
+  Occasion,
+  Stage,
+  TimelineMetrics,
+} from "@/types/timeline";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { TimelineStage } from "./stage/TimelineStage";
+import { TimelineAxis } from "./TimelineAxis";
 import {
   calculatePosition,
   calculateStageWidth,
-  getTimelineBoundaries,
-} from "@/utils/date";
-import { TimelineStage } from "./stage/TimelineStage";
-import { TimelineAxis } from "./TimelineAxis";
+  calculateTimelineBoundaries,
+} from "@/utils/timeline-utils";
+import { TimelineOccasion } from "./occasion/TimelineOccasion";
+import { calculateTimelineMetrics } from "@/utils/timeline-calculation";
 
 interface TimelineBodyProps {
   stages: Stage[];
@@ -20,7 +25,9 @@ interface TimelineBodyProps {
 
 export const TimelineBody = memo(
   ({ stages, occasions, layout, gapLayout, isExpanded }: TimelineBodyProps) => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const [selectedStage, setSelectedStage] = useState<string | null>(null);
+    const [metrics, setMetrics] = useState<TimelineMetrics | null>(null);
     const [selectedOccasion, setSelectedOccasion] = useState<string | null>(
       null
     );
@@ -28,9 +35,9 @@ export const TimelineBody = memo(
     const timelineData = useMemo(() => {
       try {
         const { start: timelineStart, end: timelineEnd } =
-          getTimelineBoundaries(stages);
+          calculateTimelineBoundaries(stages);
 
-        const getStageWidth = (stage: (typeof stages)[0]) => {
+        const getStageWidth = (stage: Stage) => {
           if (layout === "even") {
             return 100 / stages.length;
           }
@@ -52,17 +59,19 @@ export const TimelineBody = memo(
 
         // Calculate total gap width
         const totalGaps = (stages.length - 1) * getGapWidth();
+        console.debug("totalGaps: ", totalGaps);
 
         // Adjust stage widths to account for gaps
         const adjustStageWidth = (width: number) => {
           const availableWidth = 100 - totalGaps;
+          console.log("availableWidth: ", availableWidth);
           return (width / 100) * availableWidth;
         };
 
         return {
           timelineStart,
           timelineEnd,
-          getStageWidth: (stage: (typeof stages)[0]) =>
+          getStageWidth: (stage: Stage) =>
             adjustStageWidth(getStageWidth(stage)),
           getGapWidth,
           totalGaps,
@@ -73,60 +82,99 @@ export const TimelineBody = memo(
       }
     }, [stages, layout, gapLayout]);
 
-    if (!timelineData) {
-      return <div>Error loading timeline</div>;
-    }
+    useEffect(() => {
+      const updateMetrics = () => {
+        if (containerRef.current) {
+          const newMetrics = calculateTimelineMetrics(
+            stages,
+            containerRef.current.offsetWidth
+          );
+          setMetrics(newMetrics);
+        }
+      };
+
+      updateMetrics();
+      window.addEventListener("resize", updateMetrics);
+      return () => window.removeEventListener("resize", updateMetrics);
+    }, [stages]);
 
     return (
       <div className="relative mt-8">
         <div
-          className="flex items-stretch"
-          style={{ gap: `${timelineData.getGapWidth()}%` }}
+          ref={containerRef}
+          className="relative mt-8 overflow-x-auto w-full"
+          style={{ height: "200px" }}
         >
-          {stages.map((stage, index) => (
+          {/* {stages.map((stage, index) => (
             <TimelineStage
               key={`${stage.title}-${index}`}
               stage={stage}
-              width={timelineData.getStageWidth(stage)}
+              metrics={metrics}
+              // width={timelineData.getStageWidth(stage)}
               isSelected={selectedStage === stage.title}
+              isExpanded={isExpanded}
               onClick={() =>
                 setSelectedStage(
                   selectedStage === stage.title ? null : stage.title
                 )
               }
-              isExpanded={isExpanded}
             />
-          ))}
-        </div>
+          ))} */}
 
-        {occasions.map((occasion) => (
-          <TimelineOccasion
-            key={occasion.id}
-            occasion={occasion}
-            position={calculatePosition(
-              occasion.date,
-              stages[0].date_beginning,
-              stages[stages.length - 1].date_end
-            )}
-            isSelected={selectedOccasion === occasion.id}
-            onClick={() =>
-              setSelectedOccasion(
-                selectedOccasion === occasion.id ? null : occasion.id
-              )
-            }
-          />
-        ))}
-        <div className="relative">
+          {metrics &&
+            stages.map((stage, index) => (
+              <TimelineStage
+                key={index}
+                stage={stage}
+                metrics={metrics}
+                isSelected={selectedStage === stage.title}
+                isExpanded={isExpanded}
+                onClick={() =>
+                  setSelectedStage(
+                    selectedStage === stage.title ? null : stage.title
+                  )
+                }
+              />
+            ))}
+
+          {/* {occasions.map((occasion) => (
+            <TimelineOccasion
+              stages={stages}
+              key={occasion.id}
+              occasion={occasion}
+              position={calculatePosition(
+                occasion.date,
+                stages[0].date_beginning,
+                stages[stages.length - 1].date_end
+              )}
+              isSelected={selectedOccasion === occasion.id}
+              onClick={() =>
+                setSelectedOccasion(
+                  selectedOccasion === occasion.id ? null : occasion.id
+                )
+              }
+            />
+          ))} */}
+          {/* <div className="relative">
           <TimelineAxis
             stages={stages}
-            boundaries={{
-              start: timelineData.timelineStart,
-              end: timelineData.timelineEnd,
-              totalDuration:
-                timelineData.timelineEnd.getTime() -
-                timelineData.timelineStart.getTime(),
-            }}
+            boundaries={calculateTimelineBoundaries(stages)}
           />
+        </div> */}
+          {metrics &&
+            occasions.map((occasion) => (
+              <TimelineOccasion
+                key={occasion.id}
+                occasion={occasion}
+                metrics={metrics}
+                isSelected={selectedOccasion === occasion.id}
+                onClick={() =>
+                  setSelectedOccasion(
+                    selectedOccasion === occasion.id ? null : occasion.id
+                  )
+                }
+              />
+            ))}
         </div>
       </div>
     );

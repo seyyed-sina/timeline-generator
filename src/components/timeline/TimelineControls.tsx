@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { LayoutType, GapLayoutType } from "@/types/timeline";
 
@@ -7,7 +9,7 @@ interface TimelineControlsProps {
   expandSelected: boolean;
   onLayoutChange: (layout: LayoutType) => void;
   onGapLayoutChange: (gapLayout: GapLayoutType) => void;
-  onExpandSelectedChange: (expand: boolean) => void;
+  onExpandChange: (expand: boolean) => void;
 }
 
 export const TimelineControls = memo(
@@ -17,16 +19,16 @@ export const TimelineControls = memo(
     expandSelected,
     onLayoutChange,
     onGapLayoutChange,
-    onExpandSelectedChange,
+    onExpandChange,
   }: TimelineControlsProps) => {
     return (
-      <div className="flex gap-4 mb-6">
+      <div className="flex items-center gap-6 mb-6">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium">Timeline Layout:</label>
           <select
             value={layout}
             onChange={(e) => onLayoutChange(e.target.value as LayoutType)}
-            className="border rounded px-2 py-1"
+            className="border text-sm focus:outline-0 rounded px-2 py-1"
           >
             <option value="precise">Precise</option>
             <option value="even">Even</option>
@@ -38,7 +40,7 @@ export const TimelineControls = memo(
           <select
             value={gapLayout}
             onChange={(e) => onGapLayoutChange(e.target.value as GapLayoutType)}
-            className="border rounded px-2 py-1"
+            className="border focus:outline-0 text-sm rounded px-2 py-1"
           >
             <option value="actual">Actual</option>
             <option value="minimum">Minimum</option>
@@ -47,12 +49,12 @@ export const TimelineControls = memo(
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">
+          <label className="text-sm flex items-center cursor-pointer font-medium">
             <input
               type="checkbox"
               checked={expandSelected}
-              onChange={(e) => onExpandSelectedChange(e.target.checked)}
-              className="mr-2"
+              onChange={(e) => onExpandChange(e.target.checked)}
+              className="mr-2 size-3"
             />
             Expand Selected
           </label>

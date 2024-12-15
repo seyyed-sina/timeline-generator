@@ -26,10 +26,10 @@ export interface Occasion {
 export type LayoutType = "precise" | "even";
 export type GapLayoutType = "actual" | "minimum" | "none";
 
-export interface TimelineProps {
-  stages: Stage[];
-  occasions: Occasion[];
-  layout?: LayoutType;
-  gapLayout?: GapLayoutType;
-  expandSelected?: boolean;
+
+export interface TimelineMetrics {
+  start: Date;
+  end: Date;
+  totalDuration: number;
+  pixelsPerDay: number;
 }

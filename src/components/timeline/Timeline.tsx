@@ -1,35 +1,30 @@
-"use client";;
+"use client";
 import { useState, useMemo } from "react";
-import { TimelineProps, LayoutType, GapLayoutType } from "@/types/timeline";
+import { LayoutType, GapLayoutType } from "@/types/timeline";
 import { TimelineControls } from "./TimelineControls";
 import { TimelineBody } from "./TimelineBody";
+import { occasions, stages } from "@/data/timeline";
 
-export function Timeline({
-  stages,
-  occasions,
-  layout = "precise",
-  gapLayout = "actual",
-  expandSelected = false,
-}: TimelineProps) {
-  const [currentLayout, setCurrentLayout] = useState<LayoutType>(layout);
+export const Timeline = () => {
+  const [currentLayout, setCurrentLayout] = useState<LayoutType>("precise");
   const [currentGapLayout, setCurrentGapLayout] =
-    useState<GapLayoutType>(gapLayout);
-  const [isExpanded, setIsExpanded] = useState(expandSelected);
+    useState<GapLayoutType>("actual");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const filteredOccasions = useMemo(
     () => occasions.filter((o) => o.is_on_timeline),
-    [occasions]
+    []
   );
 
   return (
-    <div className="p-8">
+    <div className="sm:p-4">
       <TimelineControls
         layout={currentLayout}
         gapLayout={currentGapLayout}
         expandSelected={isExpanded}
         onLayoutChange={setCurrentLayout}
         onGapLayoutChange={setCurrentGapLayout}
-        onExpandSelectedChange={setIsExpanded}
+        onExpandChange={setIsExpanded}
       />
 
       <TimelineBody
@@ -41,4 +36,6 @@ export function Timeline({
       />
     </div>
   );
-}
+};
+
+Timeline.displayName = "Timeline";
