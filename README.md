@@ -1,36 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# timeline-generator
+A React component (Timeline) that generates a visual representation of the given 'stages' and 'occasions' data. Timeline has a dynamic layout and the horizontal dimensions of the stages in the timeline are determined by the 'layout' and 'gapLayout' properties. 
+For the layout, the base setup is the 'precise' mode which basically means the exact dimensions based on the given dates. For the purpose of this task just another layout type 'even' should be accepted (that makes all the stages have the same width). 
+In addition to the layout, the gaps between the timeline stages are determined by the 'gapLayout' property. The base setup is 'actual' which basically works like the precise setup in layout. It means that gaps are treated like normal stages. Two other 'minimum' and 'none' should also be accepted. minimum means all the gaps are displayed with the minimum size (take 20px for this task) and none means 0. 
 
-## Getting Started
+Requirement:
 
-First, run the development server:
+- The gaps should be calculated automatically.  
+- layout and gapsLayout should be choosable. (a simple default html list item is enough. styling is not necessary)
+- The selected stage needs to be toggled and also expanded (the selected stage becomes wider). the expanding effect should be able to be turned on and off.  
+- Occasions should also get selected by click. the selected occasions get a selection round (as displayed). 
+- Occasions that have false 'is_on_timeline' field should not be displayed.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Optional:
+When occasions are selected, its properties are displayed: type, title, and date (these are included in each occasion item).
