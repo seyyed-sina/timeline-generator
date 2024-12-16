@@ -1,19 +1,19 @@
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+
 import {
   GapLayoutType,
   Occasion,
   Stage,
   TimelineMetrics,
 } from "@/types/timeline";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { TimelineStage } from "./stage/TimelineStage";
-import { TimelineAxis } from "./TimelineAxis";
-import {
-  calculatePosition,
-  calculateStageWidth,
-  calculateTimelineBoundaries,
-} from "@/utils/timeline-utils";
-import { TimelineOccasion } from "./occasion/TimelineOccasion";
 import { calculateTimelineMetrics } from "@/utils/timeline-calculation";
+import { calculateStageWidth, calculateTimelineBoundaries } from "@/utils/timeline-utils";
+
+import { TimelineOccasion } from "./occasion/TimelineOccasion";
+import { TimelineStage } from "./stage/TimelineStage";
+
+
+
 
 interface TimelineBodyProps {
   stages: Stage[];
@@ -27,7 +27,16 @@ export const TimelineBody = memo(
   ({ stages, occasions, layout, gapLayout, isExpanded }: TimelineBodyProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [selectedStage, setSelectedStage] = useState<string | null>(null);
-    const [metrics, setMetrics] = useState<TimelineMetrics | null>(null);
+     const [metrics, setMetrics] = useState(() =>
+       containerRef.current
+         ? calculateTimelineMetrics(
+             stages,
+             containerRef.current.offsetWidth,
+             layout,
+             gapLayout
+           )
+         : null
+     );
     const [selectedOccasion, setSelectedOccasion] = useState<string | null>(
       null
     );
@@ -82,22 +91,27 @@ export const TimelineBody = memo(
       }
     }, [stages, layout, gapLayout]);
 
-    useEffect(() => {
-      const updateMetrics = () => {
-        if (containerRef.current) {
-          const newMetrics = calculateTimelineMetrics(
-            stages,
-            containerRef.current.offsetWidth
-          );
-          setMetrics(newMetrics);
-        }
-      };
+     useEffect(() => {
+       const updateMetrics = () => {
+         if (containerRef.current) {
+           setMetrics(
+             calculateTimelineMetrics(
+               stages,
+               containerRef.current.offsetWidth,
+               layout,
+               gapLayout
+             )
+           );
+         }
+       };
 
-      updateMetrics();
-      window.addEventListener("resize", updateMetrics);
-      return () => window.removeEventListener("resize", updateMetrics);
-    }, [stages]);
+       updateMetrics();
+       window.addEventListener("resize", updateMetrics);
+       return () => window.removeEventListener("resize", updateMetrics);
+     }, [stages, layout, gapLayout]);
 
+    //  if (!metrics) return null;
+ const filteredOccasions = occasions.filter((o) => o.is_on_timeline);
     return (
       <div className="relative mt-8">
         <div
@@ -134,6 +148,11 @@ export const TimelineBody = memo(
                     selectedStage === stage.title ? null : stage.title
                   )
                 }
+                occasions={filteredOccasions.filter(
+                  (o) =>
+                    new Date(o.date) >= new Date(stage.date_beginning) &&
+                    new Date(o.date) <= new Date(stage.date_end)
+                )}
               />
             ))}
 

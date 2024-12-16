@@ -18,6 +18,9 @@ export default {
         middle: "rgb(125, 125, 125)",
         light: "rgb(240, 240, 240)",
       },
+      spacing: {
+        25: "6.25rem",
+      },
     },
   },
   plugins: [],

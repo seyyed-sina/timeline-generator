@@ -50,14 +50,16 @@
 // }
 
 import React from "react";
+
 import { Occasion, TimelineMetrics } from "@/types/timeline";
+
 // import {
 //   TimelineMetrics,
 //   getExactPosition,
 // } from "@/utils/timeline-utils";
 import { OccasionMarker } from "./OccasionMarker";
 import { OccasionPopover } from "./OccasionPopover";
-import { getExactPosition } from "@/utils/timeline-calculation";
+// import { getExactPosition } from "@/utils/timeline-calculation";
 
 interface TimelineOccasionProps {
   occasion: Occasion;
@@ -72,12 +74,13 @@ export function TimelineOccasion({
   isSelected,
   onClick,
 }: TimelineOccasionProps) {
-  const position = getExactPosition(new Date(occasion.date), metrics);
+  const position = metrics.getPositionForDate(new Date(occasion.date));
+  console.log('position: ', position);
 
   return (
     <div
       className="absolute -translate-x-1/2 cursor-pointer"
-      style={{ left: `${position}px` }}
+      style={{ left: position }}
       onClick={onClick}
     >
       <OccasionMarker

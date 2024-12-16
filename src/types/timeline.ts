@@ -1,8 +1,8 @@
-export const DATE_TYPES = {
-  STATUS: "status",
-  MILESTONE: "milestone",
-  STAGE: "stage",
-} as const;
+export enum DATE_TYPES {
+  STATUS = "status",
+  MILESTONE = "milestone",
+  STAGE = "stage",
+}
 
 export interface Stage {
   date_beginning: string;
@@ -14,7 +14,7 @@ export interface Stage {
 export interface Occasion {
   id: string;
   date: string;
-  type: (typeof DATE_TYPES)[keyof typeof DATE_TYPES];
+  type: DATE_TYPES;
   created_at: string;
   created_by: string;
   description: string;
@@ -24,8 +24,8 @@ export interface Occasion {
 }
 
 export type LayoutType = "precise" | "even";
-export type GapLayoutType = "actual" | "minimum" | "none";
 
+export type GapLayoutType = "actual" | "minimum" | "none";
 
 export interface TimelineMetrics {
   start: Date;
@@ -33,3 +33,11 @@ export interface TimelineMetrics {
   totalDuration: number;
   pixelsPerDay: number;
 }
+
+// export interface TimelineMetrics {
+//   totalWidth: number;
+//   pixelsPerDay: number;
+//   getPositionForDate: (date: Date) => string;
+//   getPositionForGrid: (gridIndex: number) => string;
+//   getPositionForStage: (stage: Stage) => string;
+// }
