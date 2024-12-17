@@ -5,26 +5,26 @@ export const stages = [
     date_beginning: "2023-10-01",
     date_end: "2024-1-20",
     title: "stage 0",
-    title_overhead: "IDEATION",
+    title_overhead: "Ideation",
   },
   {
     date_beginning: "2024-4-12",
     date_end: "2024-8-10",
     title: "stage 1",
-    title_overhead: "PLANNINGS",
+    title_overhead: "Plannings",
   },
   {
     date_beginning: "2024-8-11",
     date_end: "2024-09-15",
     title: "stage 2",
-    title_overhead: "DESIGN",
+    title_overhead: "Design",
   },
   { date_beginning: "2024-11-01", date_end: "2025-1-25", title: "stage 3" },
   {
     date_beginning: "2025-01-26",
     date_end: "2025-03-20",
     title: "stage 4",
-    title_overhead: "IMPLEMENTATION",
+    title_overhead: "Implementation",
   },
 ];
 

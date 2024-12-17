@@ -1,4 +1,5 @@
 import { Fragment, memo } from "react";
+
 import { Stage } from "@/types/timeline";
 import { parseDate, formatDate } from "@/utils/date";
 import { TimelineBoundaries } from "@/utils/timeline-utils";
@@ -60,3 +61,5 @@ export const TimelineAxis = memo(
     );
   }
 );
+
+TimelineAxis.displayName = "TimelineAxis";

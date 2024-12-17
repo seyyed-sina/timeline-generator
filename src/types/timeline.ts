@@ -31,6 +31,7 @@ export interface TimelineMetrics {
   start: Date;
   end: Date;
   totalDuration: number;
+  totalDays: number;
   pixelsPerDay: number;
 }
 

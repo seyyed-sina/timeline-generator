@@ -1,6 +1,8 @@
-import { memo } from "react";
+import { memo, RefObject, useRef } from "react";
 
-import { Occasion } from "@/types/timeline";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { DATE_TYPES, Occasion } from "@/types/timeline";
+import { clx } from "@/utils";
 
 import { OccasionMarker } from "./OccasionMarker";
 import { OccasionPopover } from "./OccasionPopover";
@@ -14,8 +16,15 @@ interface TimelineOccasionProps {
 
 export const TimelineOccasion = memo(
   ({ occasion, position, isSelected, onClick }: TimelineOccasionProps) => {
+    const markerRef = useRef<HTMLDivElement>(null);
+
+    useOutsideClick(markerRef as RefObject<HTMLElement>, () => {
+      if (isSelected) onClick();
+    });
+
     return (
       <div
+        ref={markerRef}
         key={occasion.id}
         style={{
           left: `${position}px`,
@@ -24,7 +33,10 @@ export const TimelineOccasion = memo(
           e.stopPropagation();
           onClick();
         }}
-        className="absolute z-10 rounded-full"
+        className={clx(
+          "absolute z-10 rounded-full -translate-y-1/2 -translate-x-1/2 top-1/2",
+          occasion.type === DATE_TYPES.MILESTONE && "z-20"
+        )}
       >
         <OccasionMarker
           type={occasion.type}

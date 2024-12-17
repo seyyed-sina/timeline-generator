@@ -1,19 +1,18 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { GapLayoutType, Occasion, Stage } from "@/types/timeline";
+import { parseDate } from "@/utils/date";
 import {
-  GapLayoutType,
-  Occasion,
-  Stage,
-  TimelineMetrics,
-} from "@/types/timeline";
-import { calculateTimelineMetrics } from "@/utils/timeline-calculation";
-import { calculateStageWidth, calculateTimelineBoundaries } from "@/utils/timeline-utils";
+  calculateTimelineMetrics,
+  getOccasionPosition,
+} from "@/utils/timeline-calculation";
+import {
+  calculateStageWidth,
+  calculateTimelineBoundaries,
+} from "@/utils/timeline-utils";
 
 import { TimelineOccasion } from "./occasion/TimelineOccasion";
 import { TimelineStage } from "./stage/TimelineStage";
-
-
-
 
 interface TimelineBodyProps {
   stages: Stage[];
@@ -27,16 +26,16 @@ export const TimelineBody = memo(
   ({ stages, occasions, layout, gapLayout, isExpanded }: TimelineBodyProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [selectedStage, setSelectedStage] = useState<string | null>(null);
-     const [metrics, setMetrics] = useState(() =>
-       containerRef.current
-         ? calculateTimelineMetrics(
-             stages,
-             containerRef.current.offsetWidth,
-             layout,
-             gapLayout
-           )
-         : null
-     );
+    const [metrics, setMetrics] = useState(() =>
+      containerRef.current
+        ? calculateTimelineMetrics(
+            stages,
+            containerRef.current.offsetWidth
+            //  layout,
+            //  gapLayout
+          )
+        : null
+    );
     const [selectedOccasion, setSelectedOccasion] = useState<string | null>(
       null
     );
@@ -91,51 +90,75 @@ export const TimelineBody = memo(
       }
     }, [stages, layout, gapLayout]);
 
-     useEffect(() => {
-       const updateMetrics = () => {
-         if (containerRef.current) {
-           setMetrics(
-             calculateTimelineMetrics(
-               stages,
-               containerRef.current.offsetWidth,
-               layout,
-               gapLayout
-             )
-           );
-         }
-       };
+    useEffect(() => {
+      const updateMetrics = () => {
+        if (containerRef.current) {
+          setMetrics(
+            calculateTimelineMetrics(
+              stages,
+              containerRef.current.offsetWidth
+              //  layout,
+              //  gapLayout
+            )
+          );
+        }
+      };
 
-       updateMetrics();
-       window.addEventListener("resize", updateMetrics);
-       return () => window.removeEventListener("resize", updateMetrics);
-     }, [stages, layout, gapLayout]);
+      updateMetrics();
+      window.addEventListener("resize", updateMetrics);
+      return () => window.removeEventListener("resize", updateMetrics);
+    }, [stages, layout, gapLayout]);
 
-    //  if (!metrics) return null;
- const filteredOccasions = occasions.filter((o) => o.is_on_timeline);
+    const stageOccasions = useCallback(
+      (stage: Stage) => {
+        return occasions.filter(
+          (occasion) =>
+            parseDate(occasion.date) >= parseDate(stage.date_beginning) &&
+            parseDate(occasion.date) <= parseDate(stage.date_end)
+        );
+      },
+      [occasions]
+    );
+
+    const filteredOccasions = occasions.filter((o) => o.is_on_timeline);
+
+    const timelineOccasions = useMemo(() => {
+      return filteredOccasions.filter((occasion) => {
+        // Check if occasion is outside ALL stages
+        return !stages.some(
+          (stage) =>
+            parseDate(occasion.date) >= parseDate(stage.date_beginning) &&
+            parseDate(occasion.date) <= parseDate(stage.date_end)
+        );
+      });
+    }, [filteredOccasions, stages]);
+
     return (
       <div className="relative mt-8">
         <div
           ref={containerRef}
-          className="relative mt-8 overflow-x-auto w-full"
-          style={{ height: "200px" }}
+          className="relative mt-8 overflow-x-auto w-full min-h-80"
         >
-          {/* {stages.map((stage, index) => (
-            <TimelineStage
-              key={`${stage.title}-${index}`}
-              stage={stage}
-              metrics={metrics}
-              // width={timelineData.getStageWidth(stage)}
-              isSelected={selectedStage === stage.title}
-              isExpanded={isExpanded}
-              onClick={() =>
-                setSelectedStage(
-                  selectedStage === stage.title ? null : stage.title
-                )
-              }
-            />
-          ))} */}
-
           {metrics &&
+            timelineData &&
+            stages.map((stage, index) => (
+              <TimelineStage
+                key={`${stage.title}-${index}`}
+                stage={stage}
+                metrics={metrics}
+                occasions={stageOccasions(stage)}
+                width={timelineData?.getStageWidth(stage)}
+                isSelected={selectedStage === stage.title}
+                isExpanded={isExpanded}
+                onClick={() =>
+                  setSelectedStage(
+                    selectedStage === stage.title ? null : stage.title
+                  )
+                }
+              />
+            ))}
+
+          {/* {metrics &&
             stages.map((stage, index) => (
               <TimelineStage
                 key={index}
@@ -154,7 +177,7 @@ export const TimelineBody = memo(
                     new Date(o.date) <= new Date(stage.date_end)
                 )}
               />
-            ))}
+            ))} */}
 
           {/* {occasions.map((occasion) => (
             <TimelineOccasion
@@ -181,11 +204,15 @@ export const TimelineBody = memo(
           />
         </div> */}
           {metrics &&
-            occasions.map((occasion) => (
+            timelineOccasions.map((occasion) => (
               <TimelineOccasion
                 key={occasion.id}
                 occasion={occasion}
-                metrics={metrics}
+                position={getOccasionPosition(
+                  parseDate(occasion.date),
+                  metrics.start,
+                  metrics
+                )}
                 isSelected={selectedOccasion === occasion.id}
                 onClick={() =>
                   setSelectedOccasion(

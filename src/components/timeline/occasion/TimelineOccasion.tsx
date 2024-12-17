@@ -49,8 +49,9 @@
 //   );
 // }
 
-import React from "react";
+import { RefObject, useRef } from "react";
 
+import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { Occasion, TimelineMetrics } from "@/types/timeline";
 
 // import {
@@ -63,31 +64,37 @@ import { OccasionPopover } from "./OccasionPopover";
 
 interface TimelineOccasionProps {
   occasion: Occasion;
-  metrics: TimelineMetrics;
   isSelected: boolean;
+  position: number;
   onClick: () => void;
 }
 
 export function TimelineOccasion({
   occasion,
-  metrics,
   isSelected,
   onClick,
+  position,
 }: TimelineOccasionProps) {
-  const position = metrics.getPositionForDate(new Date(occasion.date));
-  console.log('position: ', position);
+  const markerRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(markerRef as RefObject<HTMLElement>, () => {
+    if (isSelected) onClick();
+  });
 
   return (
     <div
+      ref={markerRef}
       className="absolute -translate-x-1/2 cursor-pointer"
       style={{ left: position }}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
     >
       <OccasionMarker
         type={occasion.type}
         isPrimary={occasion.is_primary}
         isSelected={isSelected}
-        isBoundary={false}
       />
       {isSelected && <OccasionPopover occasion={occasion} isBoundary={false} />}
     </div>

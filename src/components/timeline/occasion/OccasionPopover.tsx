@@ -1,4 +1,3 @@
-import React from "react";
 import { Occasion } from "@/types/timeline";
 import { formatDate, parseDate } from "@/utils/date";
 

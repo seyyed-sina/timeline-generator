@@ -1,9 +1,11 @@
 "use client";
 import { useState, useMemo } from "react";
-import { LayoutType, GapLayoutType } from "@/types/timeline";
-import { TimelineControls } from "./TimelineControls";
-import { TimelineBody } from "./TimelineBody";
+
 import { occasions, stages } from "@/data/timeline";
+import { LayoutType, GapLayoutType } from "@/types/timeline";
+
+import { TimelineBody } from "./TimelineBody";
+import { TimelineControls } from "./TimelineControls";
 
 export const Timeline = () => {
   const [currentLayout, setCurrentLayout] = useState<LayoutType>("precise");
@@ -17,7 +19,7 @@ export const Timeline = () => {
   );
 
   return (
-    <div className="sm:p-4">
+    <div className="sm:px-4">
       <TimelineControls
         layout={currentLayout}
         gapLayout={currentGapLayout}

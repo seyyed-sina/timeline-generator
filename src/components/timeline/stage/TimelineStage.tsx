@@ -1,14 +1,16 @@
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
 
-import { occasions } from "@/data/timeline";
 import { Occasion, Stage, TimelineMetrics } from "@/types/timeline";
 import { clx } from "@/utils";
 import { parseDate } from "@/utils/date";
-import { getStageWidth } from "@/utils/timeline-calculation";
+import {
+  getOccasionPosition,
+  getStagePosition,
+} from "@/utils/timeline-calculation";
 
 import { StageDates } from "./StageDates";
 import { StageHeader } from "./StageHeader";
-import { OccasionMarker } from "../occasion/OccasionMarker";
+import { TimelineOccasion } from "../occasion/TimelineOccasion";
 // import { StageProgress } from "./StageProgress";
 
 interface TimelineStageProps {
@@ -16,6 +18,7 @@ interface TimelineStageProps {
   metrics: TimelineMetrics;
   isSelected: boolean;
   isExpanded: boolean;
+  width: number;
   occasions: Occasion[];
   onClick: () => void;
 }
@@ -27,24 +30,36 @@ export const TimelineStage = memo(
     isSelected,
     isExpanded,
     onClick,
+    width,
     occasions,
   }: TimelineStageProps) => {
-    const width = getStageWidth(stage, metrics);
+    const [selectedOccasion, setSelectedOccasion] = useState<string | null>(
+      null
+    );
     const startDate = parseDate(stage.date_beginning);
     const endDate = parseDate(stage.date_end);
 
-    // const startPosition = getExactPosition(startDate, metrics);
-    const startPosition = metrics.getPositionForStage(stage);
+    const startPosition = getStagePosition(stage, metrics);
+    // const startPosition = metrics.getPositionForStage(stage);
     console.log("startPosition: ", startPosition);
 
     // Calculate final width with expansion factor
     const expansionFactor = isSelected && isExpanded ? 1.2 : 1;
-    const finalWidth = `${width * expansionFactor}px`;
+    const finalWidth = `${width * expansionFactor}%`;
+
+    const handleOccasionClick = useCallback(
+      (occasionId: string) => {
+        setSelectedOccasion(
+          occasionId === selectedOccasion ? null : occasionId
+        );
+      },
+      [selectedOccasion]
+    );
 
     return (
       <div
         className={clx(
-          "relative transition-all duration-300 h-24 border rounded-lg p-4 cursor-pointer hover:shadow-lg overflow-hidden",
+          "relative transition-all duration-300 h-24 border rounded-lg p-4 cursor-pointer hover:shadow-lg",
           isSelected
             ? "bg-blue-100 border-blue-500 shadow-md"
             : "bg-gray-100 border-gray-300"
@@ -59,23 +74,37 @@ export const TimelineStage = memo(
         <StageDates startDate={startDate} endDate={endDate} />
 
         {occasions.map((occasion) => {
-          const position = metrics.getPositionForDate(new Date(occasion.date));
+          const position = getOccasionPosition(
+            new Date(occasion.date),
+            startDate,
+            metrics
+          );
 
           return (
-            <div
+            // <div
+            //   key={occasion.id}
+            //   style={{
+            //     left: position,
+            //   }}
+            //   className="absolute z-10 text-xs flex text-gray-500"
+            // >
+            //   <OccasionMarker
+            //     type={occasion.type}
+            //     isPrimary={occasion.is_primary}
+            //     isSelected={isSelected}
+            //   />
+            // </div>
+            <TimelineOccasion
               key={occasion.id}
-              style={{
-                left: position,
-              }}
-              className="absolute z-10 text-xs flex text-gray-500"
-            >
-              <OccasionMarker
-                type={occasion.type}
-                isPrimary={occasion.is_primary}
-                isSelected={isSelected}
-                isBoundary
-              />
-            </div>
+              occasion={occasion}
+              position={getOccasionPosition(
+                parseDate(occasion.date),
+                startDate,
+                metrics
+              )}
+              isSelected={selectedOccasion === occasion.id}
+              onClick={() => handleOccasionClick(occasion.id)}
+            />
           );
         })}
       </div>

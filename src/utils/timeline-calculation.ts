@@ -1,9 +1,4 @@
-import {
-  GapLayoutType,
-  LayoutType,
-  Stage,
-  TimelineMetrics,
-} from "@/types/timeline";
+import { Occasion, Stage, TimelineMetrics } from "@/types/timeline";
 
 import { parseDate } from "./date";
 
@@ -12,68 +7,44 @@ export const calculateTimelineMetrics = (
   containerWidth: number
 ): TimelineMetrics => {
   const allDates = stages.flatMap((stage) => [
-    new Date(stage.date_beginning),
-    new Date(stage.date_end),
+    parseDate(stage.date_beginning),
+    parseDate(stage.date_end),
   ]);
-
+  // Find the minimum and maximum dates
   const start = new Date(Math.min(...allDates.map((d) => d.getTime())));
   const end = new Date(Math.max(...allDates.map((d) => d.getTime())));
+
+  // Calculate total duration in milliseconds
   const totalDuration = end.getTime() - start.getTime();
-  const totalDays = totalDuration / (1000 * 60 * 60 * 24); // in days
+
+  // Calculate pixels per day
+  const totalDays = totalDuration / (1000 * 60 * 60 * 24);
   const pixelsPerDay = containerWidth / totalDays;
 
-  return { start, end, totalDuration, pixelsPerDay };
+  return { start, end, totalDuration, pixelsPerDay, totalDays };
 };
 
-// export function calculateTimelineMetrics(
-//   stages: Stage[],
-//   containerWidth: number,
-//   layout: LayoutType,
-//   gapLayout: GapLayoutType
-// ): TimelineMetrics {
-//   const allDates = stages.flatMap((stage) => [
-//     new Date(stage.date_beginning),
-//     new Date(stage.date_end),
-//   ]);
+export const calculateTimelineMetricsFromOccasions = (
+  occasions: Occasion[],
+  containerWidth: number
+): TimelineMetrics => {
+  const allDates = occasions.map((occasion) => parseDate(occasion.date));
 
-//   const startDate = new Date(Math.min(...allDates.map((d) => d.getTime())));
-//   const endDate = new Date(Math.max(...allDates.map((d) => d.getTime())));
-//   const totalDays =
-//     (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+  // Find the minimum and maximum dates
+  const start = new Date(Math.min(...allDates.map((d) => d.getTime())));
+  const end = new Date(Math.max(...allDates.map((d) => d.getTime())));
 
-//   let totalWidth = containerWidth;
-//   let pixelsPerDay = totalWidth / totalDays;
+  // Calculate total duration in milliseconds
+  const totalDuration = end.getTime() - start.getTime();
 
-//   if (layout === "even") {
-//     const stageWidth = containerWidth / stages.length;
-//     totalWidth = containerWidth;
-//     pixelsPerDay = stageWidth;
-//   }
+  // Convert duration to total days
+  const totalDays = totalDuration / (1000 * 60 * 60 * 24);
 
-//   // Handle gaps based on gapLayout
-//   if (gapLayout !== "actual") {
-//     const gapSize = gapLayout === "minimum" ? 20 : 0;
-//     const gaps = stages.length - 1;
-//     totalWidth += gaps * gapSize;
-//   }
+  // Calculate pixels per day
+  const pixelsPerDay = containerWidth / totalDays;
 
-//   return {
-//     totalWidth,
-//     pixelsPerDay,
-//     // getPositionForDate: (date: Date) => {
-//     //   const days =
-//     //     (date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-//     //   return `${days * pixelsPerDay}px`;
-//     // },
-//     // getPositionForGrid: (gridIndex: number) => `${gridIndex * pixelsPerDay}px`,
-//     // getPositionForStage: (stage: Stage) => {
-//     //   const stageStart = new Date(stage.date_beginning);
-//     //   const days =
-//     //     (stageStart.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-//     //   return `${days * pixelsPerDay}px`;
-//     // },
-//   };
-// }
+  return { start, end, totalDuration, pixelsPerDay, totalDays };
+};
 
 export function getOccasionPosition(
   date: Date,

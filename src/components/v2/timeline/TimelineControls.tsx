@@ -53,7 +53,7 @@ export const TimelineControls = memo(
               type="checkbox"
               checked={expandSelected}
               onChange={(e) => onExpandChange(e.target.checked)}
-              className="mr-2 size-3"
+              className="mr-2 size-3 checked:accent-secondary"
             />
             Expand Selected
           </label>

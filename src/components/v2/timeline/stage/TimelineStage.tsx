@@ -19,7 +19,7 @@ interface TimelineStageProps {
   metrics: TimelineMetrics;
   isSelected: boolean;
   isExpanded: boolean;
-  layout: LayoutType
+  layout: LayoutType;
   occasions: Occasion[];
   onClick: () => void;
 }
@@ -31,27 +31,19 @@ export const TimelineStage = memo(
     isSelected,
     isExpanded,
     onClick,
-    layout,
     occasions,
   }: TimelineStageProps) => {
     const [selectedOccasion, setSelectedOccasion] = useState<string | null>(
       null
     );
-    // const getStageWidth = (stage: Stage) => {
-    //   if (layout === "even") {
-    //     return 100 / stages.length;
-    //   }
-    //   return calculateStageWidth(stage, metrics.start, timelineEnd);
-    // };
-
-    const width = getStageWidth(stage, metrics, layout);
+    const width = getStageWidth(stage, metrics);
     const position = getStagePosition(stage, metrics);
 
     const stageStartDate = parseDate(stage.date_beginning);
     const stageEndDate = parseDate(stage.date_end);
 
     // Calculate final width with expansion factor
-    const expansionFactor = isSelected && isExpanded ? 1.2 : 1;
+    const expansionFactor = isSelected && isExpanded ? 1.1 : 1;
     const finalWidth = `${width * expansionFactor}px`;
 
     const handleOccasionClick = useCallback(
@@ -82,7 +74,7 @@ export const TimelineStage = memo(
         {occasions && (
           <div
             className={clx(
-              "relative z-0 rounded-full transition-all duration-300 border-4 border-solid bg-white border-white outline-secondary outline-4 outline h-5",
+              "relative rounded-full transition-all duration-300 border-4 border-solid bg-white border-white outline-secondary outline-2 outline h-5",
               isSelected && "outline-primary z-10"
             )}
           >

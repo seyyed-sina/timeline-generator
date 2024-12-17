@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+
 import { LayoutType, GapLayoutType } from "@/types/timeline";
 
 interface TimelineControlsProps {

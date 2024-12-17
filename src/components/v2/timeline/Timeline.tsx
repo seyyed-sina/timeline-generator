@@ -19,7 +19,7 @@ export const Timeline = () => {
   );
 
   return (
-    <div className="sm:p-4">
+    <div className="sm:px-4">
       <TimelineControls
         layout={currentLayout}
         gapLayout={currentGapLayout}
